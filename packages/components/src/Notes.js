@@ -1,25 +1,22 @@
-import React from 'react'
-import { withContext } from './context'
+import React, { useEffect, useContext } from 'react'
+import { Context } from './context'
+import styled from '@emotion/styled'
 
-export const Notes = withContext(
-  class extends React.Component {
-    constructor(props) {
-      super(props)
-      const { context, children } = props
-      if (
-        !context ||
-        typeof context.index === 'undefined' ||
-        typeof context.register !== 'function'
-      ) {
-        return
-      }
-      context.register(context.index, { notes: children })
-    }
+const HiddenNotes = styled.div({ display: 'none' })
 
-    render() {
-      return false
+export function Notes({ children }) {
+  const context = useContext(Context)
+  useEffect(() => {
+    console.log('NOTES useEffect ran')
+    if (
+      Number.isInteger(context.index) &&
+      typeof context.registerNotes === 'function'
+    ) {
+      context.registerNotes(context.index, children)
     }
-  }
-)
+  })
+
+  return <HiddenNotes>{children}</HiddenNotes>
+}
 
 export default Notes

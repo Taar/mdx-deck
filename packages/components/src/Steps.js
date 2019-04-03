@@ -5,10 +5,10 @@ export const Steps = withContext(
   class extends React.Component {
     constructor(props) {
       super(props)
-      const { register, index } = props.context
+      const { registerSteps, index } = props.context
       const { length } = props
-      if (typeof register !== 'function') return
-      register(index, { steps: length })
+      if (typeof registerSteps !== 'function') return
+      registerSteps(index, length)
     }
     render() {
       const { context, render } = this.props
