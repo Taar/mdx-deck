@@ -6,7 +6,7 @@ const keys = {
   p: 80,
   o: 79,
   g: 71,
-  g: 78,
+  n: 78,
 }
 
 /*
@@ -16,10 +16,11 @@ const STORAGE_STEP = 'mdx-step'
 
 const inputElements = ['INPUT', 'TEXTAREA', 'A', 'BUTTON']
 
-export default function useNavigation(history) {
+export default function useNavigation(history, location) {
   useEffect(() => {
     function handleKeyDown(e) {
       e.preventDefault()
+      console.log('Location', location)
 
       const { keyCode, metaKey, ctrlKey, altKey, shiftKey } = e
       const { activeElement } = document
@@ -39,7 +40,12 @@ export default function useNavigation(history) {
       if (alt) {
         switch (keyCode) {
           case keys.p:
-            history.push('/presenter')
+            const pathIndex = location.pathname.split('/')[1]
+            const initialIndex =
+              pathIndex != null && pathIndex.length !== 0
+                ? parseInt(pathIndex)
+                : 0
+            history.push(`/presenter/${initialIndex}`)
             break
           case keys.o:
             history.push('/overview')
@@ -58,8 +64,9 @@ export default function useNavigation(history) {
     //window.addEventListener('storage', this.handleStorageChange)
 
     return function cleanUp() {
+      console.log('Cleaning up Navigation ...')
       document.body.removeEventListener('keydown', handleKeyDown)
       //window.removeEventListener('storage', this.handleStorageChange)
     }
-  })
+  }, [history, location])
 }

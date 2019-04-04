@@ -5,63 +5,23 @@ import { Route, withRouter } from 'react-router-dom'
 import { Swipeable } from 'react-swipeable'
 
 import Slide from './Slide'
-import useArrowKeys from './useArrowKeys'
+import useSlideState from './useSlideState'
 
 function Normal(props) {
   const { slides, history, match, location } = props
-  console.log(match, location)
+  console.log('Normal', match, location)
 
   const pathIndex = location.pathname.split('/')[1]
   const initialIndex =
     pathIndex != null && pathIndex.length !== 0 ? parseInt(pathIndex) : 0
 
-  const [index, setIndex] = useState(initialIndex)
-
-  useEffect(
-    function pushHistory() {
-      history.push(`/${index}`)
-    },
-    [index]
+  const [index, step, register] = useSlideState(
+    history,
+    match.path,
+    location.pathname,
+    initialIndex,
+    slides
   )
-
-  const initSteps = useMemo(
-    function initSteps() {
-      const keys = [...Array(slides.length).keys()]
-      return keys.reduce(function buildSteps(steps, key) {
-        return { ...steps, [key]: 0 }
-      }, {})
-    },
-    [slides]
-  )
-  const [steps, registerSteps] = useState(initSteps)
-  const [step, setStep] = useState(0)
-
-  function register(index, numOfSteps) {
-    registerSteps({
-      ...steps,
-      [index]: numOfSteps,
-    })
-  }
-
-  function next() {
-    if (steps[index] > 0 && step < steps[index]) {
-      setStep(step + 1)
-    } else {
-      setStep(0)
-      setIndex(index + 1)
-    }
-  }
-
-  function previous() {
-    if (steps[index] > 0 && step > 0) {
-      setStep(step - 1)
-    } else {
-      setStep(steps[index - 1])
-      setIndex(index - 1)
-    }
-  }
-
-  useArrowKeys(next, previous)
 
   const context = {
     step,

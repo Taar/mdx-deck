@@ -55,6 +55,10 @@ const baseConfig = {
   module: {
     rules,
   },
+  output: {
+    filename: 'main.js',
+    publicPath: '/',
+  },
   resolve: {
     extensions: ['.js', '.jsx'],
     alias: {

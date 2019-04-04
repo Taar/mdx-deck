@@ -20,13 +20,14 @@ import Catch from './Catch'
 
 import useNavigation from './useNavigation'
 
-function Navigation({ history, children }) {
-  useNavigation(history)
+function Navigation({ history, location, children }) {
+  useNavigation(history, location)
   return <>{children}</>
 }
 
 Navigation.propTypes = {
   history: PropTypes.object.isRequired,
+  location: PropTypes.object.isRequired,
   children: PropTypes.element.isRequired,
 }
 
@@ -35,6 +36,7 @@ const KeyPressNavigation = withRouter(Navigation)
 export function MDXDeck(props) {
   const { slides } = props
 
+  // How to set a global mode of sorts
   const mode = 'normal'
   const currentIndex = 0
   return (
@@ -44,12 +46,15 @@ export function MDXDeck(props) {
           <KeyPressNavigation>
             <Switch>
               <Route
+                path={['/presenter', '/presenter/:index']}
+                render={() => <Presenter slides={slides} />}
+              />
+              <Route path="/overview" component={() => <p>overview</p>} />
+              <Route path="/grid" component={() => <p>grid</p>} />
+              <Route
                 path={['/', '/:index']}
                 render={() => <Normal slides={slides} />}
               />
-              <Route path="/presenter" component={() => <p>presenter</p>} />
-              <Route path="/overview" component={() => <p>overview</p>} />
-              <Route path="/grid" component={() => <p>grid</p>} />
               {/* TODO: view not found component */}
             </Switch>
           </KeyPressNavigation>
