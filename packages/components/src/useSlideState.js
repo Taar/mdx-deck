@@ -51,5 +51,5 @@ export default function useSlideState(
 
   useArrowKeys(next, previous)
 
-  return [index, step, register]
+  return [index, step, register, steps]
 }

@@ -13,12 +13,13 @@ function Presenter(props) {
   const { slides, history, match, location } = props
   // We know the mode because this component is rendering
 
-  const pathIndex = parseInt(location.pathname.split('/')[1])
+  const pathIndex = parseInt(location.pathname.split('/')[2])
   const initialIndex =
     pathIndex != null && Number.isInteger(pathIndex) ? pathIndex : 0
+
   console.log('Path', pathIndex, initialIndex)
 
-  const [index, step, register] = useSlideState(
+  const [index, step, register, steps] = useSlideState(
     history,
     match.path,
     location.pathname,
@@ -26,10 +27,26 @@ function Presenter(props) {
     slides
   )
 
+  let Next = slides[index]
+  let nextStep = step + 1
+  let nextIndex = index
+
+  if (steps[index] == 0 || step + 1 > steps[index]) {
+    nextStep = 0
+    // TODO: check to make sure there is a next slide
+    nextIndex = index + 1
+    Next = slides[nextIndex]
+  }
+
   const notes = []
 
   const context = {
+    step,
     register,
+  }
+
+  const nextContext = {
+    step: nextStep,
   }
 
   return (
@@ -57,7 +74,20 @@ function Presenter(props) {
             marginRight: 'auto',
           }}
         >
-          <Zoom zoom={5 / 8}>{/* Sldies go here */}</Zoom>
+          <Zoom zoom={5 / 8}>
+            {slides.map((Component, i) => (
+              <Route
+                key={i}
+                exact
+                path={i === 0 ? [`/presenter/${i}`, `/`] : `/presenter/${i}`}
+                render={() => (
+                  <Slide index={i} {...context}>
+                    <Component />
+                  </Slide>
+                )}
+              />
+            ))}
+          </Zoom>
         </div>
         <div
           style={{
@@ -67,7 +97,11 @@ function Presenter(props) {
             marginRight: 'auto',
           }}
         >
-          <Zoom zoom={1 / 4}>{/* Next slide/step here */}</Zoom>
+          <Zoom zoom={1 / 4}>
+            <Slide index={nextIndex} {...nextContext}>
+              <Next />
+            </Slide>
+          </Zoom>
           <Pre>{notes}</Pre>
         </div>
       </div>
