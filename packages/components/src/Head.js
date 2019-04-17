@@ -1,68 +1,42 @@
-import React from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 
+// ok maybe use the slide context for this?? like only render the head
+// component if the context tells you too which would only be the first
+// render slide
 export const HeadContext = React.createContext({
-  tags: [],
-  push: () => {
-    console.warn('Missing HeadProvider')
+  rendered: false,
+  update() {
+    console.warn('Not implemented by Provider')
   },
 })
 
 export const HeadProvider = ({ tags = [], children }) => {
-  const push = elements => {
-    tags.push(...elements)
+  console.log('tags?', tags)
+  const [rendered, setRendered] = useState(false)
+  const context = {
+    rendered,
+    setRendered,
   }
-  const context = { push }
   return <HeadContext.Provider value={context}>{children}</HeadContext.Provider>
 }
 
-export class Head extends React.Component {
-  state = {
-    didMount: false,
-  }
-  rehydrate = () => {
-    const children = React.Children.toArray(this.props.children)
-    const nodes = [...document.head.querySelectorAll('[data-head]')]
-    nodes.forEach(node => {
-      node.remove()
-    })
-    children.forEach(child => {
-      if (child.type === 'title') {
-        const title = document.head.querySelector('title')
-        if (title) title.remove()
-      }
-      if (child.type === 'meta') {
-        const { name } = child.props
-        let meta
-        if (name) meta = document.head.querySelector(`meta[name="${name}"]`)
-        if (meta) meta.remove()
-      }
-    })
-    this.setState({ didMount: true })
-  }
+export function Head(props) {
+  console.log('HEAD render')
+  const { rendered, setRendered } = useContext(HeadContext)
 
-  componentDidMount() {
-    this.rehydrate()
-  }
-
-  render() {
-    const children = React.Children.toArray(this.props.children).map(child =>
-      React.cloneElement(child, {
-        'data-head': true,
-      })
-    )
-    if (!this.state.didMount) {
-      return (
-        <HeadContext.Consumer
-          children={({ push }) => {
-            push(children)
-            return false
-          }}
-        />
-      )
+  useEffect(() => {
+    const title = document.head.querySelector('title')
+    if (title) {
+      setRendered(true)
     }
-    return createPortal(children, document.head)
-  }
-}
+  }, [rendered, setRendered])
 
-export default Head
+  const children = React.Children.toArray(props.children).map(child =>
+    React.cloneElement(child, {
+      'data-head': true,
+    })
+  )
+
+  return createPortal(children, document.head)
+}

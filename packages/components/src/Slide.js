@@ -16,12 +16,20 @@ const SlideRoot = styled.div(
   props => props.theme.Slide
 )
 
-export const Slide = ({ children, ...props }) => (
-  <Context.Provider value={props}>
-    <Root>
-      <SlideRoot>{children}</SlideRoot>
-    </Root>
-  </Context.Provider>
-)
+export const Slide = ({ children, ...props }) => {
+  return (
+    <Context.Provider value={props}>
+      <Root>
+        <SlideRoot style={{ display: props.hide ? 'none' : 'auto' }}>
+          {children}
+        </SlideRoot>
+      </Root>
+    </Context.Provider>
+  )
+}
+
+Slide.DefaultProps = {
+  hide: false,
+}
 
 export default Slide

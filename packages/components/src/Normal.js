@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 
 import { Route, withRouter } from 'react-router-dom'
@@ -15,7 +15,7 @@ function Normal(props) {
   const initialIndex =
     pathIndex != null && pathIndex.length !== 0 ? parseInt(pathIndex) : 0
 
-  const [index, step, register] = useSlideState(
+  const [, step, register] = useSlideState(
     history,
     match.path,
     location.pathname,
@@ -28,8 +28,25 @@ function Normal(props) {
     register,
   }
 
+  /*
+  The simple answer to why the first slide is being rendered by not shown is
+  because the first slide hold (or can hold, more on that later) the Head tag
+  which is used to set meta tags in the head of the document. If the first slide
+  get unmounted the meta tags get removed. For more information see the Head
+  component.
+
+  If the Head is used anywhere else but on the first slide, it will only get
+  rendered/placed in the head tag while that slide is visible.
+  */
+  const [FirstSlide] = slides
+
   return (
     <Swipeable onSwipedRight={() => {}} onSwipedLeft={() => {}}>
+      {/* See the comment at the definition of FirstSlide to get
+          an understanding of why */}
+      <Slide hide index={0} {...{ step: 0 }}>
+        <FirstSlide />
+      </Slide>
       {slides.map((Component, i) => (
         <Route
           key={i}
